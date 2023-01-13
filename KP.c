@@ -36,11 +36,12 @@ int searchPecr(data* p, int size, float perc, int ind);  /*Поиск по пр�
 int searchName(data* p, int size, char* name_search_X, char* name_search_I, char* name_search_P, int ind);  /*Поиск по ФИО*/
 void sort(data* p, int size); /*Сортировка*/
 int compare_q(const void* av, const void* bv); /*Вспомогательная функция для сортировки*/
+void edit(data* p, int num_edit);
 
 void main() {
 	setlocale(LC_ALL, "RUS");
-	int size=0, end = -1;
-	data* p=NULL;
+	int size = 0, end = -1;
+	data* p = NULL;
 	//p = (data*)malloc(size * sizeof(data));
 
 	while (end != 0) {
@@ -52,35 +53,35 @@ void main() {
 		{
 			system("cls");
 			FILE* KP = fopen("KP.txt", "r");
-			int q=0;
+			int q = 0;
 			while (!feof(KP))
 				if (fgetc(KP) == '\n')q++;
 			q = q / 6;
-			p = (data*)malloc((q+1) * sizeof(data));
+			p = (data*)malloc((q + 1) * sizeof(data));
 
-			size=out_file(p);
+			size = out_file(p);
 			add_data(p, size);
 			add_to_file(p, size);
 			size++;
 		}
-			break;
+		break;
 		case 2:
 		{
 			size = out_file(p);
-			int z, ind=-1;
+			int z, ind = -1;
 
 			printf("Выберите поиск\n1-процент голосов выше заданного\n2-по председателю\n");
 			scanf("%d", &z);
 			getchar();
-			
-			if (z == 1) { 
+
+			if (z == 1) {
 				float perc_search;
-				
+
 				printf("Введите процент голосов\n");
 				scanf("%f", &perc_search);
 
 				searchPecr(p, size, perc_search, ind);
-				
+
 			}
 			else if (z == 2) {
 				char name_search_X[N];
@@ -93,7 +94,7 @@ void main() {
 				searchName(p, size, name_search_X, name_search_I, name_search_P, ind);
 			}
 			else printf("Ошибка\n");
-			break; 
+			break;
 		}
 		case 3:
 		{
@@ -109,11 +110,14 @@ void main() {
 			while (!feof(KP))
 				if (fgetc(KP) == '\n')q++;
 			q = q / 6;
-			p = (data*)malloc(q/sizeof(data));
+			p = (data*)malloc(q / sizeof(data));
 
 			size = out_file(p);
-			for(int i=0; i<size; i++)
+			for (int i = 0; i < size; i++)
+			{
+				printf("----------Председатель#%d----------\n", i + 1);
 				out(p[i]);
+			}
 			break;
 		}
 		case 5:
@@ -132,6 +136,19 @@ void main() {
 			size += n;
 			break;
 		}
+		case 6:
+		{
+			int num_edit;
+			printf("Введите номер изменяемой записи\n");
+			scanf("%d", &num_edit);
+
+			if (num_edit >= size) {
+				printf("Председателя с таким номером не существует\n");
+				break;
+			}
+			else edit(p, num_edit);
+			break;
+		}
 		case 0: // Выход из программы
 			break;
 		}
@@ -143,8 +160,9 @@ void menu() {
 	puts("1. Ввести данные о партиях");
 	puts("2. Найти партию");
 	puts("3. Отсортировать");
-	puts("4. Вывести данные о представителях");
-	puts("5. Добавить произвольное число представителей");
+	puts("4. Вывести данные о председателе");
+	puts("5. Добавить произвольное число председателей");
+	puts("6. Изменить данные о председателе");
 	puts("0. Выход из программы");
 }
 // Меню
@@ -152,7 +170,7 @@ void menu() {
 void add_data(data* p, int i) {
 	printf("Введите название партии: ");
 	scanf("%s", p[i].name);
-	
+
 	printf("Введите ФИО председателя: ");
 	scanf("%s %s %s", p[i].X, p[i].I, p[i].P);
 
@@ -182,7 +200,7 @@ void out(data p) {
 void add_to_file(data* p, int size) {
 	FILE* KP;
 
-	if (size == 0 && out_file(p)==0) KP = fopen("KP.txt", "w+");
+	if (size == 0 && out_file(p) == 0) KP = fopen("KP.txt", "w+");
 	else KP = fopen("KP.txt", "a");
 
 	for (int i = size; i < size+1; i++)
@@ -231,14 +249,14 @@ int searchPecr(data* p, int size, float perc, int ind) {
 int searchName(data* p, int size, char* name_search_X, char* name_search_I, char* name_search_P, int ind) {
 	for (int i = ind; i < size; i++)
 	{
-		if (!(strcmp(p[i].X, name_search_X)&& strcmp(p[i].I, name_search_I)&& strcmp(p[i].P, name_search_P))) out(p[i]);
+		if (!(strcmp(p[i].X, name_search_X) && strcmp(p[i].I, name_search_I) && strcmp(p[i].P, name_search_P))) out(p[i]);
 	}
 	return 0;
 }
 //Поиск по имени
 
 void sort(data* p, int size) {
-	data *q;
+	data* q;
 	q = (data*)malloc(size * sizeof(data));
 
 	for (int i = 0; i < size; i++)
@@ -262,3 +280,21 @@ int compare_q(const void* av, const void* bv) {
 	return 0;
 }
 //Для сортировки
+
+void edit(data* p, int num_edit) {
+	int size=out_file(p);
+	FILE* KP = fopen("KP.txt", "w");
+	add_data(p, num_edit-1);
+
+	for (int i = 0; i < size; i++)
+	{
+		fprintf(KP, "\n%s\n", p[i].name);
+		fprintf(KP, "%s %s %s\n", p[i].X, p[i].I, p[i].P);
+		fprintf(KP, "%f\n", p[i].numbers);
+		fprintf(KP, "%f\n", p[i].perc);
+		fprintf(KP, "%d\n", p[i].year);
+		fprintf(KP, "%f", p[i].q);
+	}
+	fclose(KP);
+}
+//Изменить запись
