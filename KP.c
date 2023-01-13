@@ -120,7 +120,6 @@ void main() {
 		{
 			int n;
 			size = out_file(p);
-			printf("%d------size\n", size);
 			printf("Сколько председателей вы хотите добавить?\n");
 			scanf("%d", &n);
 
